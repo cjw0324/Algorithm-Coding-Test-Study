@@ -15,7 +15,7 @@ class Solution {
         if (d == numbers.length) {
             if (sum == target) answer++;
         }
-        if (d < numbers.length) {
+        else {
             DFS(d+1, sum+numbers[d]);
             DFS(d+1, sum-numbers[d]);
         }
