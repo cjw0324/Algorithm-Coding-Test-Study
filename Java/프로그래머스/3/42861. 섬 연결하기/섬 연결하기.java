@@ -53,7 +53,7 @@ class Solution {
         private Node root() {
             if (parent == null) return this;
             else {
-                return parent = parent.root();
+                return parent.root();
             }
         }
     }
