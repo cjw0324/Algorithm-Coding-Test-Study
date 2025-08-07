@@ -8,31 +8,31 @@ class Solution {
         use.get(0).add(0);
         use.get(1).add(N);
         
-        for(int i = 2; i<9; i++) {
+        for(int i = 1; i<9; i++) {
             Set<Integer> nowSet = use.get(i);
-            for (int j = 1; j< i; j++) {
-                Set<Integer> preSet = use.get(j);
-                Set<Integer> postSet = use.get(i - j);
-                
-                for (int pre : preSet) {
-                    for(int post : postSet) {
-                        nowSet.add(pre + post);
-                        nowSet.add(pre - post);
-                        nowSet.add(pre * post);
-                        if (post != 0) {
-                            nowSet.add(pre / post);
+
+            if (i == 1 && nowSet.contains(number)) return i;
+            else {
+                for (int j = 1; j< i; j++) {
+                    Set<Integer> preSet = use.get(j);
+                    Set<Integer> postSet = use.get(i - j);
+
+                    for (int pre : preSet) {
+                        for(int post : postSet) {
+                            nowSet.add(pre + post);
+                            nowSet.add(pre - post);
+                            nowSet.add(pre * post);
+                            if (post != 0) {
+                                nowSet.add(pre / post);
+                            }
                         }
                     }
                 }
+
+                nowSet.add(Integer.parseInt((Integer.toString(N)).repeat(i)));
+                if(nowSet.contains(number))  return i;
             }
-            
-            nowSet.add(Integer.parseInt((Integer.toString(N)).repeat(i)));
         }
-        
-        for (Set<Integer> searchSet : use) {
-            if (searchSet.contains(number)) return use.indexOf(searchSet);
-        }
-        
         return  -1;
     }
 }
