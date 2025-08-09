@@ -1,46 +1,41 @@
 import java.util.*;
-class Solution { //가중치가 없어서, bfs로 품
+class Solution {
     static int[] distance;
-    static int[][] edges;
+    static boolean[] visited;
     public int solution(int n, int[][] edge) {
-        distance = new int[n];
-        this.edges = edge.clone();
-        bfs();
-        int max = Integer.MIN_VALUE;
-        int count = 0;
+        distance = new int[n+1];
+        visited = new boolean[n+1];
         
-        int i = 1;
-        for (int d : distance) {
-            //System.out.println("node" + i + ": " + d);
-            if (d > max) {
-                count = 1;
-                max = d;
-            } else if (d == max) {
-                count++;
-            }
-            i++;
-        }
-        
-        return count;
-    }
-    
-    public void bfs() {
         Queue<Integer> queue = new LinkedList<>();
         queue.offer(1);
-        distance[0] = 1;
-        while(!queue.isEmpty()) {
-            int node = queue.poll();
-            for (int[] edge : edges) {
-                if (edge[0] == node || edge[1] == node) {
-                    //System.out.println("edge[0] : " + edge[0] +", edge[1] : " + edge[1] +", node : " + node);
-                    int next = edge[0]==node?edge[1]:edge[0];
-                    if (distance[next - 1] == 0) {
-                        distance[next - 1] = distance[node - 1] + 1;
-                        //System.out.println("next : " + next +", distance[" +next+"] : " + distance[next - 1]);
+        visited[1] = true;
+        
+        while(!queue.isEmpty()){
+            int now = queue.poll();
+            //System.out.println("now : " + now);
+            for (int[] vertex : edge) {
+                int node1 = vertex[0];
+                int node2 = vertex[1];
+                
+                if (now == node1 || now == node2) {
+                    int next = (now == node1) ? node2 : node1;
+                    if (!visited[next]) {
+                        //System.out.println("next : " + next);
+
+                        visited[next] = true;
                         queue.offer(next);
+                        distance[next] = distance[now] + 1;
+                        
                     }
                 }
             }
         }
+        int count = 0;
+        int max = Arrays.stream(distance).max().getAsInt();
+        for (int d : distance) {
+            if (d == max) count++;
+        }
+        
+        return count;
     }
 }
