@@ -41,7 +41,12 @@ class Solution {
         if (len == 1) {
             char root = str.charAt(0);
             // 부모가 0인데 내가 1이면 불가
-            return !(parentZero && root == '1');
+            if (parentZero) { //부모가 0일때
+                if (root == '1') return false;
+                else return true;
+            } else{ //부모가 1일때
+                return true;
+            }
         }
 
         int mid = len / 2;
@@ -50,7 +55,7 @@ class Solution {
         if (parentZero && root == '1') return false;
 
         String left  = str.substring(0, mid);
-        String right = str.substring(mid + 1);
+        String right = str.substring(mid + 1, len);
 
         boolean nextParentZero = parentZero || (root == '0');
         return checkBinaryTree(left, nextParentZero) && checkBinaryTree(right, nextParentZero);
