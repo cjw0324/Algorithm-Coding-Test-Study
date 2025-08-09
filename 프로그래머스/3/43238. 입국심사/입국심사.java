@@ -1,21 +1,21 @@
 import java.util.*;
 class Solution {
     public long solution(int n, int[] times) {
-        long right = Arrays.stream(times).max().getAsInt() * (long) n;
-        long left = 1;
-        long answer = right;
-        while (left <= right) {
-            long mid = (left + right) / 2;
-            long capacity = 0;
-            for (int t : times) {
-                capacity += mid / (long) t;
+        long max = (long) Arrays.stream(times).max().getAsInt() * (long) n;
+        long min = 1;
+        long answer = 0;
+        
+        while(min < max){
+            long mid = (min + max) / 2;
+            long sum = 0;
+            for(int time : times) {
+                sum += mid / (long) time;
             }
-            
-            if(capacity < n) { // 처리 할 수 없다.
-                left = mid + 1;
-            } else { // 처리 할 수 있다.
+            if (sum >= n) {
                 answer = mid;
-                right = mid - 1;
+                max = mid;
+            } else {
+                min = mid + 1;
             }
         }
         
