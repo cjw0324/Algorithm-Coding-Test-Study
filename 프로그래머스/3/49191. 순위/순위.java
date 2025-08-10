@@ -1,44 +1,63 @@
+import java.util.*;
 class Solution {
-    static boolean[][] graph;
-    static int[][] results;
     static int n;
     public int solution(int n, int[][] results) {
+        int answer = 0;
         this.n = n;
-        graph = new boolean[n+1][n+1]; // index 1 부터 1번 선수로 생각하기 위해 n+1 크기 만큼 설정해 줌.
-        for (int[] result : results) { //[4,3] 이라면, 4가 3을 이긴 상황이다. 이를 인접 행렬 그래프로 표현하면, table[4][3] = true 가 된다.
-            graph[result[0]][result[1]] = true;
+        for (int i = 0; i<n; i++){
+            int win = win(i+1, results);
+            int lose = lose(i+1, results);
+            System.out.println( (i+1)+"player's win count : " + win);
+            System.out.println( (i+1)+"player's lose count : " + lose);
+            
+            if (win + lose == n - 1) {
+                answer++;
+            }
         }
-        this.results = results.clone();
         
-        boolean[] visited;
+        
+        return answer;
+    }
+    
+    
+    public int win(int start,int[][] results) {
+        boolean[] visited = new boolean[n];
+        Queue<Integer> queue = new LinkedList<>();
+        queue.offer(start);
+        visited[start - 1] = true;
         int count = 0;
-        for (int i = 1; i<=n; i++) {
-            int wins = win(i, new boolean[n+1]);
-            int lose = lose(i, new boolean[n+1]);
-            System.out.println(wins +", "+lose);
-            if (wins + lose -1 == n) count++;
+        
+        while(!queue.isEmpty()) {
+            int now = queue.poll(); //1,2,3,4,5
+            for (int[] result : results) {
+                if (result[0] == now && !visited[result[1] - 1]) {
+                    int next = result[1];
+                    visited[next - 1] = true;
+                    queue.offer(next);
+                    count++;
+                }
+            }    
         }
         return count;
     }
     
-    public int win(int u, boolean[] visited) {
-        int count = 1;
-        for (int v = 1; v<=n; v++) {
-            if (graph[u][v] && !visited[v]) {
-                visited[v] = true;
-                count += win(v,visited);
-            }
-        }
-        return count;
-    }
-    
-    public int lose(int u, boolean[] visited) {
-        int count = 1;
-        for (int v = 1; v<=n; v++) {
-            if (graph[v][u] && !visited[v]) {
-                visited[v] = true;
-                count += lose(v, visited);
-            }
+    public int lose(int start, int[][] results) {
+        boolean[] visited = new boolean[n];
+        Queue<Integer> queue = new LinkedList<>();
+        queue.offer(start);
+        visited[start - 1] = true;
+        int count = 0;
+        
+        while(!queue.isEmpty()) {
+            int now = queue.poll(); //1,2,3,4,5
+            for (int[] result : results) {
+                if (result[1] == now && !visited[result[0] - 1]) {
+                    int next = result[0];
+                    visited[next - 1] = true;
+                    queue.offer(next);
+                    count++;
+                }
+            }    
         }
         return count;
     }
