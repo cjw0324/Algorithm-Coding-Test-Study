@@ -1,66 +1,66 @@
 import java.util.*;
 class Solution {
-    static List<List<Integer>> graph = new ArrayList<>();
-    static Map<Integer, Integer> map = new HashMap<>();
-    static boolean[] visitable;
+    static boolean[] visited;
+    static List<Integer>[] graph;
+    static int[] need;
+    static int[] waiting;
     public boolean solution(int n, int[][] path, int[][] order) {
-        visitable = new boolean[n];
-        
-        Arrays.fill(visitable, true);
-        
+        graph = new List[n];
+        visited = new boolean[n];
+        need = new int[n];
+        waiting = new int[n];
         for (int i = 0; i<n; i++) {
-            graph.add(new ArrayList<>());
+            graph[i] = new ArrayList<>();
+        }
+        for (int[] p : path) {
+            graph[p[0]].add(p[1]);
+            graph[p[1]].add(p[0]);
         }
         
-        for (int[] connection : path) {
-            int node1 = connection[0];
-            int node2 = connection[1];
-            graph.get(node1).add(node2);
-            graph.get(node2).add(node1);
-        }
-        
+        Arrays.fill(need, -1);
+        Arrays.fill(waiting, -1);
         for (int[] o : order) {
-            map.put(o[0], o[1]);
-            visitable[o[1]] = false;
+            int a = o[0];
+            int b = o[1];
+            need[b] = a;
         }
         
-        if(!visitable[0]) return false;
-        
-        Queue<Integer> queue = new LinkedList<>();
-        boolean[] visited = new boolean[n];
+        if (need[0] != -1) return false;
         
         visited[0] = true;
+        Queue<Integer> queue = new LinkedList<>();
         queue.offer(0);
-        
-        while(!queue.isEmpty()) {
+        while (!queue.isEmpty()) {
             int now = queue.poll();
-            for(int next : graph.get(now)) {
-                if (!visited[next] && visitable[next]) {
-                    visited[next] = true;
-                    queue.offer(next);
+            
+            if (waiting[now] != -1) {
+                int unlock = waiting[now];
+                if (!visited[unlock]) {
+                    visited[unlock] = true;
+                    queue.offer(unlock);
                 }
+                
+                waiting[now] = -1;
             }
             
-            Integer open = map.get(now);
-            if (open != null){
-                visitable[open] = true;
-                for (int before : graph.get(open)) {
-                    if (visited[before]) {
-                        visited[open] = true;
-                        queue.offer(open);
-                        break;
-                    }
+            
+            for (int next : graph[now]) {
+                if (visited[next]) continue;
+                
+                if (need[next] == -1 || visited[need[next]]) {
+                    visited[next] = true;
+                    queue.offer(next);
+                } else {
+                    waiting[need[next]] = next;
                 }
+                
             }
         }
         
-        
-        for (boolean check : visited) {
-            if (!check) return false;
+        for (boolean b : visited) {
+            if(!b) return false;
         }
         return true;
-        
-        
     }
     
 }
