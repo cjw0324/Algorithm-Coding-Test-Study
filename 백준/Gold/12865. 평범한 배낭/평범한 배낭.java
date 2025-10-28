@@ -1,44 +1,38 @@
 import java.io.*;
 import java.util.*;
 public class Main {
-    static int[] v;
-    static int[] w;
+    static int n, k;
     static int[][] dp;
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-        int n = Integer.parseInt(st.nextToken());
-        int k = Integer.parseInt(st.nextToken());
+        n = Integer.parseInt(st.nextToken());
+        k = Integer.parseInt(st.nextToken());
+        dp = new int[n + 1][k + 1];
 
-        v = new int[n];
-        w = new int[n];
-
-
-        for (int i = 0; i < n; i++) {
+        int[][] items = new int[n + 1][2];
+        for (int i = 1; i <= n; i++) {
             st = new StringTokenizer(br.readLine(), " ");
-            w[i] = Integer.parseInt(st.nextToken());
-            v[i] = Integer.parseInt(st.nextToken());
+            int w = Integer.parseInt(st.nextToken());
+            int v = Integer.parseInt(st.nextToken());
+            items[i][0] = w;
+            items[i][1] = v;
         }
 
-
-        dp = new int[n][k + 1];
-
-        for (int j = 0; j <= k; j++) {
-            if (w[0] <= j) {
-                dp[0][j] = v[0];
-            }
-        }
-
-        for (int i = 1; i < n; i++) {
+        for (int i = 1; i <= n; i++) {
             for (int j = 1; j <= k; j++) {
-                if (w[i] > j) {
+                int w = items[i][0];
+                int v = items[i][1];
+
+                if (w > j) {
                     dp[i][j] = dp[i - 1][j];
                 } else {
-                    dp[i][j] = Math.max(dp[i - 1][j - w[i]] + v[i], dp[i - 1][j]);
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i - 1][j - w] + v);
                 }
             }
+
         }
 
-        System.out.println(dp[dp.length - 1][k]);
+        System.out.println(dp[n][k]);
     }
 }
