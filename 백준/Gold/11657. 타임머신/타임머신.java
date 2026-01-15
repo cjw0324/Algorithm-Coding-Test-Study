@@ -2,56 +2,53 @@ import java.io.*;
 import java.util.*;
 
 public class Main {
-    static int n, m;
+    static int N, M;
+    static int start;
     static List<Edge> graph;
+    static StringTokenizer st;
     static long[] dist;
-    static StringBuilder sb = new StringBuilder();
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-        n = Integer.parseInt(st.nextToken());
-        m = Integer.parseInt(st.nextToken());
-        dist = new long[n + 1];
+        StringBuilder sb = new StringBuilder();
+        st = new StringTokenizer(br.readLine());
+        N = Integer.parseInt(st.nextToken());
+        M = Integer.parseInt(st.nextToken());
+        start = 1;
         graph = new ArrayList<>();
-        for (int i = 0; i < m; i++) {
-            st = new StringTokenizer(br.readLine(), " ");
-            graph.add(
-                    new Edge(Integer.parseInt(st.nextToken()),Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken())));
+        for (int m = 0; m < M; m++) {
+            st = new StringTokenizer(br.readLine());
+            graph.add(new Edge(Integer.parseInt(st.nextToken()), Integer.parseInt(st.nextToken()),
+                    Integer.parseInt(st.nextToken())));
         }
 
-        if (bellman_ford(1)) {
-            System.out.println(-1);
+        if (bellmanFord()) {
+            sb.append(-1);
+            System.out.println(sb.toString().trim());
             return;
         }
 
-        for (int i = 2; i <= n; i++) {
-            if (dist[i] == Integer.MAX_VALUE) {
-                sb.append("-1\n");
-            } else {
-                sb.append(dist[i]+"\n");
-            }
+        for (int i = 2; i <= N; i++) {
+            sb.append(dist[i] == Long.MAX_VALUE ? "-1\n" : dist[i] + "\n");
         }
 
         System.out.println(sb.toString().trim());
-
     }
 
-    static boolean bellman_ford(int start) {
-        for (int i = 0; i <= n; i++) {
-            dist[i] = Integer.MAX_VALUE;
-        }
+    public static boolean bellmanFord() {
+        dist = new long[N + 1];
+        Arrays.fill(dist, Long.MAX_VALUE);
         dist[start] = 0;
 
-        for (int i = 1; i <= n; i++) {
+        for (int i = 1; i <= N; i++) {
             for (Edge edge : graph) {
-                int now = edge.v1;
-                int next = edge.v2;
-                int cost = edge.e;
+                int from = edge.v1;
+                int to = edge.v2;
+                int cost = edge.c;
 
-                if ((dist[now] != Integer.MAX_VALUE) && (dist[next] > dist[now] + cost)) {
-                    dist[next] = dist[now] + cost;
+                if (dist[from] != Long.MAX_VALUE && dist[to] > dist[from] + cost) {
+                    dist[to] = dist[from] + cost;
 
-                    if (i == n) {
+                    if (i == N) {
                         return true;
                     }
                 }
@@ -64,12 +61,12 @@ public class Main {
     static class Edge {
         int v1;
         int v2;
-        int e;
+        int c;
 
-        public Edge(int v1, int v2, int e) {
+        public Edge(int v1, int v2, int c) {
             this.v1 = v1;
             this.v2 = v2;
-            this.e = e;
+            this.c = c;
         }
     }
 }
