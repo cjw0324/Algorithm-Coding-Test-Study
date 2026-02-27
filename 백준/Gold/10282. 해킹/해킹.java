@@ -1,5 +1,3 @@
-
-
 import java.io.*;
 import java.util.*;
 
@@ -50,26 +48,29 @@ public class Main {
 
 
             dijkstra();
-            sb.append(count + " " + maxTime).append("\n");
+            for (int i = 1; i <= n; i++) {
+                if (visited[i]) count++;
+                if (dist[i] != INF) {
+                    maxTime = Math.max(maxTime, dist[i]);
+                }
+            }
+            sb.append(count).append(" ").append(maxTime).append("\n");
+            count = 0;
+            maxTime = 0;
         }
         System.out.println(sb.toString().trim());
     }
 
     private static void dijkstra() {
-        maxTime = 0;
-        count = 0;
-        pq = new PriorityQueue<>((e1, e2) -> e1.time - e2.time);
         dist = new int[n + 1];
-        visited = new boolean[n + 1];
         Arrays.fill(dist, INF);
         dist[c] = 0;
+        visited = new boolean[n + 1];
+        pq = new PriorityQueue<>((e1, e2) -> e1.time - e2.time);
         pq.offer(new Edge(c, 0));
         while (!pq.isEmpty()) {
             Edge now = pq.poll();
-            if (visited[now.node]) continue;
             visited[now.node] = true;
-            count++;
-            maxTime = Math.max(maxTime, now.time);
             for (Edge next : graph[now.node]) {
                 if (!visited[next.node] && dist[next.node] > dist[now.node] + next.time) {
                     dist[next.node] = dist[now.node] + next.time;
@@ -78,5 +79,4 @@ public class Main {
             }
         }
     }
-
 }
