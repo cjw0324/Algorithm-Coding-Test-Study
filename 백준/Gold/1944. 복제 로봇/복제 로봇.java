@@ -1,112 +1,106 @@
-import java.util.*;
 import java.io.*;
+import java.util.*;
+
 
 public class Main {
+    static int n, m;
+    static char[][] map;
+    static BufferedReader br;
+    static List<Node> nodes;
+    static boolean[][] visited;
+    static final int[] dx = {1, -1, 0, 0};
+    static final int[] dy = {0, 0, -1, 1};
+    static PriorityQueue<Vertex> vertexes;
+    static int[] parent;
 
     static class Node {
+        int x;
+        int y;
+        int dis;
 
-        int x, y, dis;
-
-        Node (int x, int y, int dis) {
+        public Node(int x, int y, int dis) {
             this.x = x;
             this.y = y;
             this.dis = dis;
         }
     }
-
-    static class Vertex implements Comparable<Vertex> {
-
-        int s, e, edge;
-
-        Vertex(int s, int e, int edge) {
-            this.s = s;
-            this.e = e;
-            this.edge = edge;
-        }
-
-        @Override
-        public int compareTo(Vertex o) {
-            return this.edge - o.edge;
+    static class Vertex {
+        int start;
+        int end;
+        int cost;
+        public Vertex(int start, int end, int cost) {
+            this.start = start;
+            this.end = end;
+            this.cost = cost;
         }
     }
 
-    static BufferedReader br;
-    static int n, m;
-    static char[][] maze;
-    static boolean[][] visited;
-    static List<Node> nodes;
-    static PriorityQueue<Vertex> vertexes;
-    static int[] parent;
-    static int[] dx = {-1, 0, 1, 0};
-    static int[] dy = {0, -1, 0, 1};
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st = new StringTokenizer(br.readLine());
+        nodes = new ArrayList<>();
+        input();
+        int answer = getShortestDistance();
+        System.out.println(answer);
+    }
 
+    private static void input() throws IOException {
+        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
         n = Integer.parseInt(st.nextToken());
         m = Integer.parseInt(st.nextToken());
-        nodes = new ArrayList<>();
-        vertexes = new PriorityQueue<>();
 
-        fillMaze();
-
-        for (int i = 0; i < m + 1; i++) {
-            bfs(i);
-        }
-
-        System.out.println(kruskal());
-
-        br.close();
+        fillMap();
     }
 
-    private static void fillMaze() throws Exception {
+    private static void fillMap() throws IOException {
+        map = new char[n][n];
+        for (int row = 0; row < n; row++) {
+            char[] line = br.readLine().toCharArray();
+            for (int col = 0; col < n; col++) {
+                map[row][col] = line[col];
 
-        maze = new char[n][n];
-        for (int i = 0; i < n; i++) {
-            char[] words = br.readLine().toCharArray();
-            for (int j = 0; j < n; j++) {
-                maze[i][j] = words[j];
-
-                if (maze[i][j] == 'S' || maze[i][j] == 'K') {
-                    nodes.add(new Node(i, j, 0));
+                if (map[row][col] == 'S' || map[row][col] == 'K') {
+                    nodes.add(new Node(row, col, 0));
                 }
             }
         }
     }
 
-    private static void bfs(int start) {
+    private static int getShortestDistance() {
+        vertexes = new PriorityQueue<>((v1, v2) -> v1.cost - v2.cost);
+        for (int start = 0; start < m + 1; start++) {
+            bfs(start);
+        }
 
-        Queue<Node> q = new LinkedList<>();
-        q.add(nodes.get(start));
+        return kruskal();
+    }
+
+    private static void bfs(int start) {
+        Queue<Node> queue = new LinkedList<>();
+        queue.add(nodes.get(start));
         visited = new boolean[n][n];
         visited[nodes.get(start).x][nodes.get(start).y] = true;
-
-        while (!q.isEmpty()) {
-            Node curNode = q.poll();
-
-            for (int i = 0; i < 4; i++) {
-                int nx = curNode.x + dx[i];
-                int ny = curNode.y + dy[i];
-
+        while(!queue.isEmpty()) {
+            Node now = queue.poll();
+            for (int d = 0; d < 4; d++) {
+                int nx = now.x + dx[d];
+                int ny = now.y + dy[d];
                 if (nx < 0 || nx >= n || ny < 0 || ny >= n) continue;
-                if (maze[nx][ny] == '1' || visited[nx][ny]) continue;
-
-                if (maze[nx][ny] == 'S' || maze[nx][ny] == 'K') {
-                    for (int j = 0; j < m + 1; j++) {
-                        if (nodes.get(j).x == nx && nodes.get(j).y == ny) {
-                            vertexes.add(new Vertex(start, j, curNode.dis + 1));
+                if (map[nx][ny] == '1' || visited[nx][ny]) continue;
+                if (map[nx][ny] == 'S' || map[nx][ny] == 'K') {
+                    for (int index = 0; index < m + 1; index++) {
+                        if (index != start && nodes.get(index).x == nx && nodes.get(index).y == ny) {
+                            vertexes.add(new Vertex(start, index, now.dis + 1));
+                            break;
                         }
                     }
                 }
-
                 visited[nx][ny] = true;
-                q.add(new Node(nx, ny, curNode.dis + 1));
+                queue.offer(new Node(nx, ny, now.dis + 1));
             }
         }
     }
 
     private static int kruskal() {
-
         parent = new int[m + 1];
         for (int i = 0; i < m + 1; i++) {
             parent[i] = i;
@@ -115,11 +109,10 @@ public class Main {
         int totalDis = 0;
         int edgeCount = 0;
         while (!vertexes.isEmpty()) {
-            Vertex curVertex = vertexes.poll();
-
-            if (find(curVertex.s) != find(curVertex.e)) {
-                union(curVertex.s, curVertex.e);
-                totalDis += curVertex.edge;
+            Vertex now = vertexes.poll();
+            if (find(now.start) != find(now.end)) {
+                union(now.start, now.end);
+                totalDis += now.cost;
                 edgeCount++;
             }
         }
@@ -129,21 +122,21 @@ public class Main {
     }
 
     private static void union(int x, int y) {
-
-        x = find(x);
-        y = find(y);
-
-        if (x != y) {
-            parent[y] = x;
+        int px = find(x);
+        int py = find(y);
+        if (px == py) return;
+        if (px < py) {
+            parent[py] = px;
+        } else {
+            parent[px] = py;
         }
     }
 
     private static int find(int x) {
-
         if (x == parent[x]) {
             return x;
         }
-
         return parent[x] = find(parent[x]);
     }
+
 }
