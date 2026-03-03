@@ -1,35 +1,51 @@
 import java.io.*;
 import java.util.*;
 
+/**
+ * BOJ 2629 (양팔저울) - 정석 DP
+ *
+ * dp[i][d] = i번째 추까지 사용했을 때, 무게 차이 d를 만들 수 있는가?
+ * (차이 d는 |왼쪽 - 오른쪽| 로 정의)
+ *
+ * 전이 (i번째 추 무게 w):
+ * 1) 추를 사용하지 않음:          dp[i+1][d] = true
+ * 2) 더 무거운 쪽에 올림:          dp[i+1][d + w] = true
+ * 3) 더 가벼운 쪽에 올림(차이 감소): dp[i+1][|d - w|] = true
+ */
 public class Main {
+    static final int MAX_D = 15000; // 추 무게 합 최대 (30 * 500)
+
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        StringTokenizer st;
 
         int n = Integer.parseInt(br.readLine().trim());
-        int[] chu = new int[n];
+        int[] w = new int[n];
 
-        st = new StringTokenizer(br.readLine());
-        int chuMax = 0;
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        int sum = 0;
         for (int i = 0; i < n; i++) {
-            chu[i] = Integer.parseInt(st.nextToken());
-            chuMax += chu[i];
+            w[i] = Integer.parseInt(st.nextToken());
+            sum += w[i];
         }
 
-        boolean[] dy = new boolean[40001];
-        dy[0] = true;
+        // dp[i][d] : i개 추 사용(0..n), 차이 d(0..sum) 가능 여부
+        boolean[][] dp = new boolean[n + 1][sum + 1];
+        dp[0][0] = true;
 
         for (int i = 0; i < n; i++) {
-            int w = chu[i];
+            int weight = w[i];
+            for (int d = 0; d <= sum; d++) {
+                if (!dp[i][d]) continue;
 
-            // dy[j]가 true인 상태에서 dy[j+w] 갱신 (j는 큰 값부터 내려가야 중복 사용 방지)
-            for (int j = chuMax; j >= 0; j--) {
-                if (dy[j] && j + w <= 40000) dy[j + w] = true;
-            }
+                // 1) 사용 안 함
+                dp[i + 1][d] = true;
 
-            // dy[j]가 true인 상태에서 dy[|j-w|] 갱신 (여긴 오름차순으로 그대로)
-            for (int j = 0; j <= chuMax; j++) {
-                if (dy[j]) dy[Math.abs(j - w)] = true;
+                // 2) 더 무거운 쪽에 올림 -> 차이 증가
+                if (d + weight <= sum) dp[i + 1][d + weight] = true;
+
+                // 3) 더 가벼운 쪽에 올림 -> 차이 감소 (절댓값)
+                int nd = Math.abs(d - weight);
+                dp[i + 1][nd] = true;
             }
         }
 
@@ -38,8 +54,11 @@ public class Main {
         StringBuilder sb = new StringBuilder();
 
         for (int i = 0; i < m; i++) {
-            int tmp = Integer.parseInt(st.nextToken());
-            sb.append(dy[tmp] ? "Y " : "N ");
+            int x = Integer.parseInt(st.nextToken());
+
+            // 구슬이 sum보다 무거우면 절대 불가능
+            if (x > sum) sb.append("N ");
+            else sb.append(dp[n][x] ? "Y " : "N ");
         }
 
         System.out.print(sb.toString());
