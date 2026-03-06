@@ -4,41 +4,36 @@ import java.util.*;
 public class Main {
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-        int n = Integer.parseInt(br.readLine());
-        int[] nums = new int[n];
-        StringTokenizer st = new StringTokenizer(br.readLine(), " ");
-        for (int i = 0; i < n; i++) {
-            nums[i] = Integer.parseInt(st.nextToken());
+        int N = Integer.parseInt(br.readLine());
+        int[] liquids = new int[N];
+        StringTokenizer st = new StringTokenizer(br.readLine());
+        for (int i = 0; i < N; i++) {
+            liquids[i] = Integer.parseInt(st.nextToken());
         }
-
-        Arrays.sort(nums);
-
+        Arrays.sort(liquids);
         int lt = 0;
-        int rt = n - 1;
-        int l1 = 0, l2 = 0;
-        int max = Integer.MAX_VALUE;
-
-        while (lt < rt) {
-            int sum = nums[lt] + nums[rt];
-            if (max > Math.abs(sum)) {
-                l1 = nums[lt];
-                l2 = nums[rt];
-                max = Math.abs(sum);
+        int rt = N - 1;
+        int l = lt;
+        int r = rt;
+        int min = Integer.MAX_VALUE;
+        while(lt < rt) {
+            int sum = liquids[lt] + liquids[rt];
+            if (Math.abs(sum) < Math.abs(min)) {
+                l = lt;
+                r = rt;
+                min = sum;
             }
-
-            if (sum > 0) {
-                rt--;
-            }
-
             if (sum < 0) {
                 lt++;
+                continue;
             }
-
-            if (sum == 0) {
-                break;
+            if (sum > 0) {
+                rt--;
+                continue;
             }
+            break;
         }
 
-        System.out.println(l1 + " " + l2);
+        System.out.println(liquids[l] + " " + liquids[r]);
     }
 }
