@@ -1,26 +1,25 @@
 class Solution
 {
-    public int solution(String s)
-    {
+    public int solution(String s) {
+        char[] arr = s.toCharArray();
+        int len = s.length();
+        boolean[][] dp = new boolean[len][len];
         int answer = 1;
-        char[] charArr = s.toCharArray();
-        int len = charArr.length;
-        int[][] dp = new int[len][len];
-        for (int i = 0; i < len; i++) {
-            dp[i][i] = 1;
+        for (int i = 0; i<len; i++) {
+            dp[i][i] = true;
         }
-        for (int i = 0; i < len - 1; i++) {
-            if (charArr[i] == charArr[i + 1]) {
-                dp[i][i + 1] = 1;
+        for (int i = 0; i<len - 1; i++) {
+            if (arr[i] == arr[i+1]) {
+                dp[i][i+1] = true;
                 answer = 2;
             }
         }
-        for (int k = 3; k <= len; k++) {
-            for (int i = 0; i<= len - k; i++) {
-                int j = i + k - 1;
-                if (charArr[i] == charArr[j] && dp[i + 1][j - 1] == 1) {
-                    dp[i][j] = 1;
-                    answer = Math.max(answer, k);
+        for (int length = 3; length <= len; length++) {
+            for (int start = 0; start<=len - length; start++) {
+                int end = start + length - 1;
+                if (arr[start] == arr[end] && dp[start + 1][end - 1]) {
+                    dp[start][end] = true;
+                    answer = length;
                 }
             }
         }
